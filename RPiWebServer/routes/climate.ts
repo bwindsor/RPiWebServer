@@ -9,15 +9,19 @@ const router = express.Router();
 var v = new validator.Validator();
 var allSchema = {
     "type": "object", "properties": {
+        "time": { "type": "string", "format": "date-time" },
         "temperature": { "type": "number" },
         "humidity": { "type": "number" }
     }
 };
 
 router.get('/', (req: express.Request, res: express.Response) => {
+    // Need to use promises here to wait for all three!
     var temperature = climate.get_temperature();
     var humidity = climate.get_humidity();
+    var time = climate.get_time();
     res.render('climate', {
+        time: time.toISOString(),
         temperature: temperature,
         humidity: humidity
     });
@@ -40,18 +44,17 @@ router.get('/api/humidity', (req: express.Request, res: express.Response) => {
 });
 
 router.get('/api/all', (req: express.Request, res: express.Response) => {
-    var humidity = climate.get_humidity();
-    var temperature = climate.get_temperature();
     res.setHeader('Content-Type', 'application/json');
     var jsonResponse = {
-        temperature: temperature,
-        humidity: humidity
+        time: climate.get_time().toISOString(),
+        temperature: climate.get_temperature(),
+        humidity: climate.get_humidity()
     };
     var val_result = v.validate(jsonResponse, allSchema);
     if (val_result.valid) {
         res.send(JSON.stringify(jsonResponse));
     } else {
-        res.send({error: "Server response not valid."});
+        res.send(val_result.errors);
     }
 });
 

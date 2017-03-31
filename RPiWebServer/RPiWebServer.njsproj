@@ -32,6 +32,7 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="helpers\tempoutput.txt" />
     <Content Include="views\climate.pug">
       <SubType>Code</SubType>
     </Content>
