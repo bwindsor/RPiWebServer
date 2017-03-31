@@ -2,8 +2,9 @@
 /** @module helpers/climate */
 var fs = require('fs');
 var csv_parse = require('csv-parse');
+var path = require('path');
 var read_last_lines = require('read-last-lines');
-var DATA_FILE = process.env.DATA_FILE || "C:\\Users\\BenJW\\OneDrive\\Documents\\Visual Studio 2017\\Projects\\RPiWebServer\\RPiWebServer\\helpers\\tempoutput.txt";
+var DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'tempoutput.txt');
 /** The name of the module. */
 exports.name = 'climate';
 /** Gets the most recently read temperature
@@ -20,7 +21,7 @@ function get_temperature(cb) {
                         cb(err);
                     }
                     else {
-                        cb(null, data[0][3]);
+                        cb(null, parseFloat(data[0][2]));
                     }
                 });
             });

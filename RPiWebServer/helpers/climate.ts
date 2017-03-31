@@ -1,9 +1,9 @@
 ﻿/** @module helpers/climate */
 const fs = require('fs');
 const csv_parse = require('csv-parse');
+const path = require('path');
 const read_last_lines = require('read-last-lines');
-const DATA_FILE = process.env.DATA_FILE || "C:\\Users\\BenJW\\OneDrive\\Documents\\Visual Studio 2017\\Projects\\RPiWebServer\\RPiWebServer\\helpers\\tempoutput.txt";
-
+const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'tempoutput.txt');
 /** The name of the module. */
 export const name = 'climate';
 
@@ -15,11 +15,11 @@ export function get_temperature(cb) {
             cb(err);
         } else {
             read_last_lines.read(DATA_FILE, 1).then((lines) => {
-                csv_parse(lines, (err, data) => {
+                csv_parse(lines, (err, data: string[][]) => {
                     if (err) {
                         cb(err);
                     } else {
-                        cb(null, data[0][3]);
+                        cb(null, parseFloat(data[0][2]));
                     }
                 });
             });

@@ -15,6 +15,8 @@ var allSchema = {
     }
 };
 router.get('/', function (req, res) {
+    // Need to use promises here to wait for all three!
+    /*
     var temperature = climate.get_temperature();
     var humidity = climate.get_humidity();
     var time = climate.get_time();
@@ -23,9 +25,23 @@ router.get('/', function (req, res) {
         temperature: temperature,
         humidity: humidity
     });
+    */
+    climate.get_temperature(function (err, temperature) {
+        if (err) {
+            res.send("Error reading temperature.");
+            return;
+        }
+        var humidity = climate.get_humidity();
+        var time = climate.get_time();
+        res.render('climate', {
+            time: time.toISOString(),
+            temperature: temperature,
+            humidity: humidity
+        });
+    });
 });
 router.get('/api/temperature', function (req, res) {
-    var temperature = climate.get_temperature();
+    var temperature = climate.get_temperature(function (err, temperature) { });
     res.setHeader('Content-Type', 'application/json');
     res.send(JSON.stringify({
         temperature: temperature
@@ -42,7 +58,7 @@ router.get('/api/all', function (req, res) {
     res.setHeader('Content-Type', 'application/json');
     var jsonResponse = {
         time: climate.get_time().toISOString(),
-        temperature: climate.get_temperature(),
+        temperature: climate.get_temperature(function (err, temperature) { }),
         humidity: climate.get_humidity()
     };
     var val_result = v.validate(jsonResponse, allSchema);
