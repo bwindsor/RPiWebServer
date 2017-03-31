@@ -1,44 +1,68 @@
 "use strict";
 /** @module helpers/climate */
-var fs = require('fs');
-var csv_parse = require('csv-parse');
-var path = require('path');
-var read_last_lines = require('read-last-lines');
-var DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'tempoutput.txt');
+const fs = require("fs");
+const csv_parse = require("csv-parse");
+const path = require('path');
+const read_last_lines = require('read-last-lines');
+const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'tempoutput.txt');
 /** The name of the module. */
 exports.name = 'climate';
-/** Gets the most recently read temperature
-@return {integer} temperature */
-function get_temperature(cb) {
-    fs.access(DATA_FILE, fs.constants.R_OK, function (err) {
-        if (err) {
-            cb(err);
-        }
-        else {
-            read_last_lines.read(DATA_FILE, 1).then(function (lines) {
-                csv_parse(lines, function (err, data) {
-                    if (err) {
-                        cb(err);
-                    }
-                    else {
-                        cb(null, parseFloat(data[0][2]));
-                    }
+function read_last_line() {
+    return new Promise((fulfill, reject) => {
+        fs.access(DATA_FILE, fs.constants.R_OK, (err) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                read_last_lines.read(DATA_FILE, 1).then((lines) => {
+                    csv_parse(lines, (err, data) => {
+                        if (err) {
+                            reject(err);
+                        }
+                        else {
+                            fulfill(data[0]);
+                        }
+                    });
                 });
-            });
-        }
+            }
+        });
+    });
+}
+/** Gets the most recently read temperature
+@return Promise */
+function get_temperature() {
+    return new Promise((resolve, reject) => {
+        read_last_line().then((value) => {
+            resolve(parseFloat(value[2]));
+        }).catch(reason => {
+            reject(reason);
+        });
     });
 }
 exports.get_temperature = get_temperature;
 /** Gets the most recently read humidity */
 function get_humidity() {
-    return 70;
+    return new Promise((resolve, reject) => {
+        read_last_line().then((value) => {
+            resolve(parseFloat(value[1]));
+        }).catch(reason => {
+            reject(reason);
+        });
+    });
 }
 exports.get_humidity = get_humidity;
-/** Gets the most recently read time */
+/** Gets the most recently read time
+@return Promise<Date> */
 function get_time() {
-    var d = new Date(0);
-    d.setUTCSeconds(1490916570);
-    return d;
+    return new Promise((resolve, reject) => {
+        read_last_line().then((value) => {
+            var d = new Date(0);
+            d.setUTCSeconds(parseFloat(value[0]));
+            resolve(d);
+        }).catch(reason => {
+            reject(reason);
+        });
+    });
 }
 exports.get_time = get_time;
 //# sourceMappingURL=climate.js.map

@@ -17,60 +17,63 @@ var allSchema = {
 
 router.get('/', (req: express.Request, res: express.Response) => {
     // Need to use promises here to wait for all three!
-    /*
-    var temperature = climate.get_temperature();
-    var humidity = climate.get_humidity();
-    var time = climate.get_time();
-    res.render('climate', {
-        time: time.toISOString(),
-        temperature: temperature,
-        humidity: humidity
-    });
-    */
-    climate.get_temperature((err: Error, temperature: number) => {
-        if (err) {
-            res.send("Error reading temperature.");
-            return;
-        }
-        var humidity = climate.get_humidity();
-        var time = climate.get_time();
+    var temp_promise = climate.get_temperature();
+    var hum_promise = climate.get_humidity();
+    var time_promise = climate.get_time();
+    Promise.all([temp_promise, hum_promise, time_promise]).then(values => {
         res.render('climate', {
-            time: time.toISOString(),
-            temperature: temperature,
-            humidity: humidity
+            time: values[2].toISOString(),
+            temperature: values[0],
+            humidity: values[1]
         });
+    }).catch( err => {
+        res.send("Error whilst getting data");
     });
+    
 });
 
 router.get('/api/temperature', (req: express.Request, res: express.Response) => {
-    var temperature = climate.get_temperature((err, temperature) => { });
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({
-        temperature: temperature
-    }));
+    climate.get_temperature().then(temperature => {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
+            temperature: temperature
+        }));
+    }).catch(err => {
+        res.send(JSON.stringify({
+            error: "Error getting the temperature"
+        }));
+    });
 });
 
 router.get('/api/humidity', (req: express.Request, res: express.Response) => {
-    var humidity = climate.get_humidity();
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({
-        humidity: humidity
-    }));
+    climate.get_humidity().then(humidity => {
+        res.setHeader('Content-Type', 'application/json');
+        res.send(JSON.stringify({
+            humidity: humidity
+        }));
+    }).catch(err => {
+        res.send(JSON.stringify({
+            error: "Error whilst getting the humidity"
+        }));
+    });
 });
 
 router.get('/api/all', (req: express.Request, res: express.Response) => {
-    res.setHeader('Content-Type', 'application/json');
-    var jsonResponse = {
-        time: climate.get_time().toISOString(),
-        temperature: climate.get_temperature((err, temperature) => { }),
-        humidity: climate.get_humidity()
-    };
-    var val_result = v.validate(jsonResponse, allSchema);
-    if (val_result.valid) {
+    
+    var temp_promise = climate.get_temperature();
+    var hum_promise = climate.get_humidity();
+    var time_promise = climate.get_time();
+    Promise.all([temp_promise, hum_promise, time_promise]).then(values => {
+        res.setHeader('Content-Type', 'application/json');
+        var jsonResponse = {
+            time: values[2].toISOString(),
+            temperature: values[0],
+            humidity: values[1]
+        };
         res.send(JSON.stringify(jsonResponse));
-    } else {
-        res.send(val_result.errors);
-    }
+    }).catch(err => {
+        res.send("Error whilst getting data");
+    });
 });
 
 export default router;
