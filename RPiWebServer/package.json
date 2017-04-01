@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "mocha --recursive"
   },
   "description": "RPiWebServer",
   "author": {
@@ -11,9 +12,6 @@
   },
   "main": "app.js",
   "dependencies": {
-    "@types/csv-parse": "^1.1.8",
-    "@types/jsonschema": "^1.1.1",
-    "@types/promise": "^7.1.30",
     "csv-parse": "~1.2.0",
     "debug": "^2.2.0",
     "express": "^4.14.0",
@@ -21,5 +19,12 @@
     "promise": "~7.1.1",
     "pug": "^2.0.0-beta6",
     "read-last-lines": "~1.1.2"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.40",
+    "@types/csv-parse": "^1.1.8",
+    "@types/jsonschema": "^1.1.1",
+    "@types/promise": "^7.1.30",
+    "mocha": "~3.2.0"
   }
 }

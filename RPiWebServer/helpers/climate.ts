@@ -7,8 +7,12 @@ const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'tempoutput.txt'
 /** The name of the module. */
 export const name = 'climate';
 
+/**
+ * Reads the last line from a CSV file
+@return Promise<string>
+ */
 function read_last_line() {
-    return new Promise((fulfill, reject) => {
+    return new Promise<string[]>((fulfill, reject) => {
         fs.access(DATA_FILE, fs.constants.R_OK, (err) => {
             if (err) {
                 reject(err);
@@ -32,7 +36,7 @@ function read_last_line() {
 @return Promise */
 export function get_temperature() {
     return new Promise<number>((resolve, reject) => {
-        read_last_line().then((value: string[]) => {
+        read_last_line().then( value => {
             resolve(parseFloat(value[2]));
         }).catch(reason => {
             reject(reason);
