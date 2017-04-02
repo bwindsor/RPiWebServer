@@ -11,4 +11,4 @@ Environment variables required:
 
 ## MySQL database
 The database should be set up with `CLIMATE_DB_NAME` as its name. The climate table can be set up with
-`CREATE TABLE climate (TIME datetime NOT NULL PRIMARY KEY, TEMPERATURE decimal(3,1), HUMIDITY decimal(3,1));
+`CREATE TABLE climate (TIME datetime NOT NULL PRIMARY KEY, TEMPERATURE decimal(3,1), HUMIDITY decimal(3,1));`
