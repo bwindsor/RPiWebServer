@@ -46,9 +46,6 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="test\helpers.climate.test.ts">
-      <TestFramework>mocha</TestFramework>
-    </Compile>
     <Content Include="datasource\tempoutput.txt" />
     <Content Include="tsconfig.json">
       <SubType>Code</SubType>
@@ -69,6 +66,14 @@
     </TypeScriptCompile>
     <TypeScriptCompile Include="routes\user.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
+    <TypeScriptCompile Include="test\climate.test.ts">
+      <SubType>Code</SubType>
+      <TestFramework>Mocha</TestFramework>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="test\climateapi.test.ts">
+      <SubType>Code</SubType>
+      <TestFramework>mocha</TestFramework>
+    </TypeScriptCompile>
     <TypeScriptCompile Include="typings\globals\express\index.d.ts" />
     <TypeScriptCompile Include="typings\globals\express-serve-static-core\index.d.ts" />
     <TypeScriptCompile Include="typings\globals\mime\index.d.ts" />

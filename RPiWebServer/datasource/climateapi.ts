@@ -2,17 +2,10 @@
 import climate_read = require('./climateread');
 
 export type Climate = climate_read.Climate;
-export type ClimateRequest = climate_read.ClimateRequest;
+export type IClimateRequest = climate_read.IClimateRequest;
+export class ClimateRequest extends climate_read.ClimateRequest { };
 
-export function get_climate(request: ClimateRequest): Promise<Climate[]> {
-    var req = request;
-    if (!req.timeSpan) {
-        req.timeSpan = moment.duration(0);
-    }
-    if (!req.resolution) {
-        req.resolution = 0;
-    }
-
+export function get_climate(req: ClimateRequest): Promise<Climate[]> {
     return new Promise((resolve, reject) => {
         climate_read.read_csv_file(req).then(value => {
             resolve(climate_read.parse_csv_result(value));

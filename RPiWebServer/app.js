@@ -5,6 +5,7 @@ const index_1 = require("./routes/index");
 const user_1 = require("./routes/user");
 const climate_1 = require("./routes/climate");
 var app = express();
+exports.app = app;
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -39,5 +40,4 @@ app.use((err, req, res, next) => {
         error: {}
     });
 });
-module.exports = app;
 //# sourceMappingURL=app.js.map

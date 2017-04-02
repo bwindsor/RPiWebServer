@@ -4,7 +4,6 @@
  */
 const express = require("express");
 const climate = require("../datasource/climateapi");
-const moment = require("moment");
 const router = express.Router();
 function send_error(res, reason) {
     res.statusCode = 500;
@@ -16,7 +15,7 @@ function send_error(res, reason) {
     }
 }
 router.get('/', (req, res) => {
-    climate.get_climate({ time: new Date(), timeSpan: moment.duration(0), resolution: 0 }).then(value => {
+    climate.get_climate(new climate.ClimateRequest()).then(value => {
         res.render('climate', {
             time: value[0].time.toISOString(),
             temperature: value[0].temperature,
@@ -28,7 +27,7 @@ router.get('/', (req, res) => {
 });
 router.get('/api/temperature', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    climate.get_climate({ time: new Date(), timeSpan: moment.duration(0), resolution: 0 }).then(value => {
+    climate.get_climate(new climate.ClimateRequest()).then(value => {
         res.send(JSON.stringify({
             temperature: value[0].temperature
         }));
@@ -38,7 +37,7 @@ router.get('/api/temperature', (req, res) => {
 });
 router.get('/api/humidity', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    climate.get_climate({ time: new Date(), timeSpan: moment.duration(0), resolution: 0 }).then(value => {
+    climate.get_climate(new climate.ClimateRequest()).then(value => {
         res.send(JSON.stringify({
             humidity: value[0].humidity
         }));
@@ -48,7 +47,7 @@ router.get('/api/humidity', (req, res) => {
 });
 router.get('/api/all', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    climate.get_climate({ time: new Date(), timeSpan: moment.duration(0), resolution: 0 }).then(value => {
+    climate.get_climate(new climate.ClimateRequest()).then(value => {
         var jsonResponse = {
             time: value[0].time.toISOString(),
             temperature: value[0].temperature,

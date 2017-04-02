@@ -49,4 +49,4 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 
-module.exports = app;
+export { app };

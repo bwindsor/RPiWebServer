@@ -1,14 +1,10 @@
 "use strict";
-const moment = require("moment");
 const climate_read = require("./climateread");
-function get_climate(request) {
-    var req = request;
-    if (!req.timeSpan) {
-        req.timeSpan = moment.duration(0);
-    }
-    if (!req.resolution) {
-        req.resolution = 0;
-    }
+class ClimateRequest extends climate_read.ClimateRequest {
+}
+exports.ClimateRequest = ClimateRequest;
+;
+function get_climate(req) {
     return new Promise((resolve, reject) => {
         climate_read.read_csv_file(req).then(value => {
             resolve(climate_read.parse_csv_result(value));
