@@ -49,7 +49,7 @@
     <Compile Include="test\helpers.climate.test.ts">
       <TestFramework>mocha</TestFramework>
     </Compile>
-    <Content Include="helpers\tempoutput.txt" />
+    <Content Include="datasource\tempoutput.txt" />
     <Content Include="tsconfig.json">
       <SubType>Code</SubType>
     </Content>
@@ -57,7 +57,10 @@
       <SubType>Code</SubType>
     </Content>
     <TypeScriptCompile Include="app.ts" />
-    <TypeScriptCompile Include="helpers\climate.ts">
+    <TypeScriptCompile Include="datasource\climateapi.ts">
+      <SubType>Code</SubType>
+    </TypeScriptCompile>
+    <TypeScriptCompile Include="datasource\climateread.ts">
       <SubType>Code</SubType>
     </TypeScriptCompile>
     <TypeScriptCompile Include="routes\index.ts" />
@@ -80,6 +83,7 @@
   <ItemGroup>
     <Folder Include="bin\" />
     <Folder Include="helpers\" />
+    <Folder Include="datasource\" />
     <Folder Include="test\" />
     <Folder Include="public\" />
     <Folder Include="public\images\" />

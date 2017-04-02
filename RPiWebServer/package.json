@@ -18,7 +18,8 @@
     "jsonschema": "~1.1.1",
     "promise": "~7.1.1",
     "pug": "^2.0.0-beta6",
-    "read-last-lines": "~1.1.2"
+    "read-last-lines": "~1.1.2",
+    "moment": "~2.18.1"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.40",

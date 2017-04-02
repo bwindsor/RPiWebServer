@@ -1,7 +1,4 @@
-import assert = require('assert');
-import climate = require('../helpers/climate');
-
- 
+import assert = require('assert'); 
 
 describe('example', function () {
     describe('#indexOf()', function () {
