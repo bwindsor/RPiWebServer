@@ -1,4 +1,6 @@
 "use strict";
+// Read environment variables
+require('dotenv').config({ path: './process.env' });
 const express = require("express");
 const path = require("path");
 const index_1 = require("./routes/index");

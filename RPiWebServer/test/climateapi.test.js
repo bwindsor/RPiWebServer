@@ -1,4 +1,5 @@
 "use strict";
+require('dotenv').config({ path: '../process.env' });
 const assert = require("assert");
 const climate = require("../datasource/climateapi");
 describe('climateapi', () => {

@@ -1,4 +1,6 @@
-﻿import express = require('express');
+﻿// Read environment variables
+require('dotenv').config({path: './process.env'});
+import express = require('express');
 import path = require('path');
 
 import routes from './routes/index';
@@ -47,6 +49,5 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
         error: {}
     });
 });
-
 
 export { app };

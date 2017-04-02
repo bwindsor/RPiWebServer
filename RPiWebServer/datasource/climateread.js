@@ -4,6 +4,7 @@ const fs = require("fs");
 const csv_parse = require("csv-parse");
 const path = require('path');
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'tempoutput.txt');
+const mysql = require("mysql");
 ;
 class ClimateRequest {
     constructor(time, timeSpan, resolution) {
@@ -31,6 +32,32 @@ class ClimateRequest {
     ;
 }
 exports.ClimateRequest = ClimateRequest;
+function get_db_connection() {
+    return mysql.createConnection({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASS,
+        database: process.env.CLIMATE_DB_NAME
+    });
+}
+exports.get_db_connection = get_db_connection;
+function read_database(req) {
+    var connection = get_db_connection();
+    return new Promise((resolve, reject) => {
+        connection.query('SELECT * from climate', function (err, rows, fields) {
+            if (err) {
+                reject(err);
+            }
+            else {
+                var result = rows.map((row) => {
+                    return { time: row.TIME, temperature: row.TEMPERATURE, humidity: row.HUMIDITY };
+                });
+                resolve(result);
+            }
+        });
+    });
+}
+exports.read_database = read_database;
 function read_csv_file(req) {
     var last_time = req.time.getTime() / 1000;
     var first_time = moment(req.time).subtract(req.timeSpan).toDate().getTime() / 1000;
