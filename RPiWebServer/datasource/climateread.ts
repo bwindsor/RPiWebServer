@@ -12,7 +12,7 @@ export type Time = Date;
 export interface IClimateRequest {
     time: Time,
     timeSpan: moment.Duration,
-    resolution: number
+    minTimeGap: number
 }
 
 export interface Climate {
@@ -24,9 +24,9 @@ export interface Climate {
 export class ClimateRequest implements IClimateRequest {
     time: Time;
     timeSpan: moment.Duration;
-    resolution: number;
+    minTimeGap: number;
     getLastOnly: boolean;
-    constructor(time?: Time, timeSpan?: moment.Duration, resolution?: number) {
+    constructor(time?: Time, timeSpan?: moment.Duration, minTimeGap?: number) {
         this.getLastOnly = false;
         if (time) {
             this.time = time;
@@ -39,10 +39,10 @@ export class ClimateRequest implements IClimateRequest {
         } else {
             this.timeSpan = moment.duration(0);
         }
-        if (resolution) {
-            this.resolution = resolution;
+        if (minTimeGap) {
+            this.minTimeGap = minTimeGap;
         } else {
-            this.resolution = 0;
+            this.minTimeGap = 1;
         }
     };
 }
@@ -60,13 +60,43 @@ export function read_database(req: ClimateRequest): Promise<Climate[]> {
 
     var connection = get_db_connection();
 
-    return new Promise<Climate[]> ( (resolve, reject) => {
-        connection.query('SELECT * from climate', function (err, rows, fields) {
+    return new Promise<Climate[]>((resolve, reject) => {
+        var query: string;
+        if (req.getLastOnly) {
+            query = "SELECT * FROM climate WHERE TIME = (SELECT MAX(TIME) FROM climate)";
+        } else {
+            var last_time = req.time.toISOString().slice(0, 19).replace('T', ' ');
+            var first_time = moment(req.time).subtract(req.timeSpan).toDate().toISOString().slice(0, 19).replace('T', ' ');
+            query = mysql.format('SELECT * FROM climate WHERE TIME BETWEEN ? AND ?', [first_time, last_time]);
+        }
+        connection.query(query, function (err, rows, fields) {
             if (err) {
                 reject(err);
             } else {
                 var result = rows.map((row: any) => {
                     return { time: row.TIME, temperature: row.TEMPERATURE, humidity: row.HUMIDITY };
+                });
+
+                // Decimate if required
+                var decimationFactor = 1;
+                if (result.length > 1) {
+                    var diff: number[] = result.map((row: Climate, idx: number, arr: Climate[]) => {
+                        if (idx == 0) {
+                            return 0;
+                        }
+                        else {
+                            return (row.time.getTime() - arr[idx - 1].time.getTime()) / 1000;
+                        }
+                    });
+                    diff = diff.slice(1);
+                    var mean = diff.reduce((total, num) => { return total + num; }) / diff.length;
+                    decimationFactor = Math.ceil(req.minTimeGap / mean);
+                }
+
+                // Ensure we always return the most recent reading
+                var final_mod = result.length % decimationFactor;
+                result = result.filter((row: Climate, idx: number) => {
+                    return (idx % decimationFactor == final_mod);
                 });
                 resolve(result);
             }

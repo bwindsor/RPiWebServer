@@ -7,7 +7,7 @@ const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'tempoutput.txt'
 const mysql = require("mysql");
 ;
 class ClimateRequest {
-    constructor(time, timeSpan, resolution) {
+    constructor(time, timeSpan, minTimeGap) {
         this.getLastOnly = false;
         if (time) {
             this.time = time;
@@ -22,11 +22,11 @@ class ClimateRequest {
         else {
             this.timeSpan = moment.duration(0);
         }
-        if (resolution) {
-            this.resolution = resolution;
+        if (minTimeGap) {
+            this.minTimeGap = minTimeGap;
         }
         else {
-            this.resolution = 0;
+            this.minTimeGap = 1;
         }
     }
     ;
@@ -44,13 +44,42 @@ exports.get_db_connection = get_db_connection;
 function read_database(req) {
     var connection = get_db_connection();
     return new Promise((resolve, reject) => {
-        connection.query('SELECT * from climate', function (err, rows, fields) {
+        var query;
+        if (req.getLastOnly) {
+            query = "SELECT * FROM climate WHERE TIME = (SELECT MAX(TIME) FROM climate)";
+        }
+        else {
+            var last_time = req.time.toISOString().slice(0, 19).replace('T', ' ');
+            var first_time = moment(req.time).subtract(req.timeSpan).toDate().toISOString().slice(0, 19).replace('T', ' ');
+            query = mysql.format('SELECT * FROM climate WHERE TIME BETWEEN ? AND ?', [first_time, last_time]);
+        }
+        connection.query(query, function (err, rows, fields) {
             if (err) {
                 reject(err);
             }
             else {
                 var result = rows.map((row) => {
                     return { time: row.TIME, temperature: row.TEMPERATURE, humidity: row.HUMIDITY };
+                });
+                // Decimate if required
+                var decimationFactor = 1;
+                if (result.length > 1) {
+                    var diff = result.map((row, idx, arr) => {
+                        if (idx == 0) {
+                            return 0;
+                        }
+                        else {
+                            return (row.time.getTime() - arr[idx - 1].time.getTime()) / 1000;
+                        }
+                    });
+                    diff = diff.slice(1);
+                    var mean = diff.reduce((total, num) => { return total + num; }) / diff.length;
+                    decimationFactor = Math.ceil(req.minTimeGap / mean);
+                }
+                // Ensure we always return the most recent reading
+                var final_mod = result.length % decimationFactor;
+                result = result.filter((row, idx) => {
+                    return (idx % decimationFactor == final_mod);
                 });
                 resolve(result);
             }
