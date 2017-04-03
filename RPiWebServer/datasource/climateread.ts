@@ -94,9 +94,9 @@ export function read_database(req: ClimateRequest): Promise<Climate[]> {
                 }
 
                 // Ensure we always return the most recent reading
-                var final_mod = result.length % decimationFactor;
+                var final_mod = (result.length-1) % decimationFactor;
                 result = result.filter((row: Climate, idx: number) => {
-                    return (idx % decimationFactor == final_mod);
+                    return ((idx % decimationFactor) == final_mod);
                 });
                 resolve(result);
             }

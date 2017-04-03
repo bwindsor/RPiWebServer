@@ -1,5 +1,6 @@
 ﻿require('dotenv').config({ path: '../process.env' });
 import assert = require('assert');
+import moment = require('moment');
 import http = require('http');
 import app = require('../app');
 import request = require('request');
@@ -90,11 +91,52 @@ describe('climate_data_get', () => {
     describe('get_climate()', () => {
         // Note this returns a promise instead of using the done function
         it('should return one result with latest time request', () => {
-        var req = new climate.ClimateRequest();
-        return climate.get_climate(req).then(result => {
-            assert.deepEqual(result, test_data.slice(test_data.length-1));
+            var req = new climate.ClimateRequest();
+            return climate.get_climate(req).then(result => {
+                assert.deepEqual(result, test_data.slice(test_data.length - 1));
+            });
         });
-    });
+
+        it('should return one results when asked for a time range with no width on a time point', () => {
+            var req = new climate.ClimateRequest(test_data[3].time, moment.duration(0, 'seconds'));
+            return climate.get_climate(req).then(result => {
+                assert.deepEqual(result, test_data.slice(3,4));
+            });
+        });
+
+        it('should return no results when asked for a time range with no width not on a time point', () => {
+            var req = new climate.ClimateRequest(new Date(0), moment.duration(0, 'seconds'));
+            return climate.get_climate(req).then(result => {
+                assert.deepEqual(result, []);
+            });
+        });
+
+        it('should return two results when asked for a time range with two points in it', () => {
+            var time_diff = (test_data[3].time.getTime() - test_data[2].time.getTime()) / 1000;
+            var req = new climate.ClimateRequest(test_data[3].time, moment.duration(time_diff, 'seconds'));
+            return climate.get_climate(req).then(result => {
+                assert.deepEqual(result, test_data.slice(2, 4));
+            });
+        });
+
+        it('should return four results when asked for a time range with four points in it', () => {
+            var time_diff = (test_data[4].time.getTime() - test_data[1].time.getTime()) / 1000 + 1;
+            var req = new climate.ClimateRequest(test_data[4].time, moment.duration(time_diff, 'seconds'));
+            return climate.get_climate(req).then(result => {
+                console.log(result);
+                assert.deepEqual(result, test_data.slice(1, 5));
+            });
+        });
+
+        it('should return two results when asked for a time range with four points and a wide spacing', () => {
+            var time_diff = (test_data[4].time.getTime() - test_data[1].time.getTime()) / 1000 + 1;
+            var req = new climate.ClimateRequest(test_data[4].time, moment.duration(time_diff, 'seconds'), time_diff / 4 * 2.1);
+            return climate.get_climate(req).then(result => {
+                assert.deepEqual(result, test_data.filter((d, i) => {
+                    return (i == 2 || i == 4);
+                }));
+            });
+        });
     });
 });
 
