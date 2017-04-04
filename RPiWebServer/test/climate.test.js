@@ -31,20 +31,23 @@ function clear_db(done) {
         }
     });
 }
-before(done => {
-    /* Create test database */
+function populate_db(done) {
     var query_string = "INSERT INTO climate VALUES ";
     for (var i = 0; i < test_data.length; i++) {
         query_string = query_string.concat(util.format("(FROM_UNIXTIME(%d), %d, %d), ", Math.round(test_data[i].time.getTime() / 1000), test_data[i].temperature, test_data[i].humidity));
     }
     ;
     query_string = query_string.slice(0, -2);
+    db_connection.query(query_string, done);
+}
+;
+before(done => {
     clear_db((err) => {
         if (err) {
             done(err);
         }
         else {
-            db_connection.query(query_string, err => {
+            populate_db((err) => {
                 if (err) {
                     done(err);
                 }
@@ -58,7 +61,6 @@ before(done => {
                         }
                     });
                 }
-                ;
             });
         }
     });
@@ -74,12 +76,19 @@ after(done => {
                     done(err);
                 }
                 else {
-                    db_connection.end(err => {
+                    populate_db((err) => {
                         if (err) {
                             done(err);
                         }
                         else {
-                            done();
+                            db_connection.end(err => {
+                                if (err) {
+                                    done(err);
+                                }
+                                else {
+                                    done();
+                                }
+                            });
                         }
                     });
                 }
@@ -186,6 +195,86 @@ describe('climate_api', () => {
                         }
                     });
                     assert.deepEqual(json, test_data[test_data.length - 1]);
+                    done();
+                }
+            });
+        });
+    });
+    describe('get /since', () => {
+        it('should return an empty array for a future date', done => {
+            var futureDate = test_data[test_data.length - 1].time.getTime() / 1000 + 100;
+            request.get(get_request_url('/api/since?time=' + futureDate.toString()), function (error, response, body) {
+                if (error) {
+                    done(error);
+                }
+                else {
+                    assert.equal(response.statusCode, 200);
+                    var json = JSON.parse(body);
+                    assert.deepEqual(json, []);
+                    done();
+                }
+            });
+        });
+        it('should return the most recent data as a 1 element array for a date just before that', done => {
+            var justBeforeDate = test_data[test_data.length - 1].time.getTime() / 1000 - 1;
+            request.get(get_request_url('/api/since?time=' + justBeforeDate.toString()), function (error, response, body) {
+                if (error) {
+                    done(error);
+                }
+                else {
+                    assert.equal(response.statusCode, 200);
+                    var json = JSON.parse(body, (key, value) => {
+                        if (key == 'time') {
+                            return new Date(value);
+                        }
+                        else {
+                            return value;
+                        }
+                    });
+                    assert.deepEqual(json, test_data.slice(test_data.length - 1));
+                    done();
+                }
+            });
+        });
+        it('should return all data for a very old date', done => {
+            var oldDate = 0;
+            request.get(get_request_url('/api/since?time=' + oldDate.toString()), function (error, response, body) {
+                if (error) {
+                    done(error);
+                }
+                else {
+                    assert.equal(response.statusCode, 200);
+                    var json = JSON.parse(body, (key, value) => {
+                        if (key == 'time') {
+                            return new Date(value);
+                        }
+                        else {
+                            return value;
+                        }
+                    });
+                    assert.deepEqual(json, test_data);
+                    done();
+                }
+            });
+        });
+        it('should return bad request for no time field', done => {
+            request.get(get_request_url('/api/since?tuew=0'), function (error, response, body) {
+                if (error) {
+                    done(error);
+                }
+                else {
+                    assert.equal(response.statusCode, 400);
+                    done();
+                }
+            });
+        });
+        it('should return bad request for invalid time field', done => {
+            request.get(get_request_url('/api/since?tuew=trstdrs'), function (error, response, body) {
+                if (error) {
+                    done(error);
+                }
+                else {
+                    assert.equal(response.statusCode, 400);
                     done();
                 }
             });
