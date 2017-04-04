@@ -8,6 +8,7 @@ Environment variables required:
 * `DB_USER` - username to connect to the mysql server
 * `DB_PASS` - password to connect to the mysql server
 * `CLIMATE_DB_NAME` - name of climate database on the mysql server
+* `NODE_ENV` - set to development or production depending on the use case
 
 ## MySQL database
 The database should be set up with `CLIMATE_DB_NAME` as its name. The climate table can be set up with
