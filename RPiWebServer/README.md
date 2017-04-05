@@ -48,6 +48,7 @@ Returns Climate[]
 Example `[{"time":"2015-11-13T10:08:21.000Z","temperature":19,"humidity":70}, {"time":"2015-11-13T10:08:51.000Z","temperature":20,"humidity":70}]`
 
 `GET /between?startTime=:startTime&endTime=:endTime&minSpacing=:minSpacing`
+Not yet implemented.
 Params
 startTime (required) - earliest UNIX time to return
 endTime (required) - latest UNIX time to return

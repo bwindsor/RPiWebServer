@@ -12,7 +12,7 @@ export type Time = Date;
 export interface IClimateRequest {
     time: Time,
     timeSpan: moment.Duration,
-    minTimeGap: number
+    resultLimit: number
 }
 
 export interface Climate {
@@ -24,9 +24,9 @@ export interface Climate {
 export class ClimateRequest implements IClimateRequest {
     time: Time;
     timeSpan: moment.Duration;
-    minTimeGap: number;
+    resultLimit: number;
     getLastOnly: boolean;
-    constructor(time?: Time, timeSpan?: moment.Duration, minTimeGap?: number) {
+    constructor(time?: Time, timeSpan?: moment.Duration, resultLimit?: number) {
         this.getLastOnly = false;
         if (time) {
             this.time = time;
@@ -39,10 +39,10 @@ export class ClimateRequest implements IClimateRequest {
         } else {
             this.timeSpan = moment.duration(0);
         }
-        if (minTimeGap) {
-            this.minTimeGap = minTimeGap;
+        if (resultLimit) {
+            this.resultLimit = resultLimit;
         } else {
-            this.minTimeGap = 1;
+            this.resultLimit = 2000;
         }
     };
 }
@@ -52,51 +52,46 @@ export function get_db_connection(): mysql.IConnection {
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
         password: process.env.DB_PASS,
-        database: process.env.CLIMATE_DB_NAME
+        database: process.env.CLIMATE_DB_NAME,
+        multipleStatements: true            // This can mean SQL injection attacks are easier, but as long as everything is properly escaped it is fine.
     });
 }
 
 export function read_database(req: ClimateRequest): Promise<Climate[]> {
 
     var connection = get_db_connection();
-
     return new Promise<Climate[]>((resolve, reject) => {
         var query: string;
+        var num_queries: number;
         if (req.getLastOnly) {
             query = "SELECT * FROM climate WHERE TIME = (SELECT MAX(TIME) FROM climate)";
+            num_queries = 1;
         } else {
             var last_time = req.time.toISOString().slice(0, 19).replace('T', ' ');
             var first_time = moment(req.time).subtract(req.timeSpan).toDate().toISOString().slice(0, 19).replace('T', ' ');
-            query = mysql.format('SELECT * FROM climate WHERE TIME BETWEEN ? AND ?', [first_time, last_time]);
+            query = mysql.format( 
+            "SET @num_rows = (SELECT COUNT(*) FROM climate WHERE TIME BETWEEN ? AND ?); \
+            SET @row_number = 0; \
+            SET @dec_fac = CEILING(@num_rows / ?); \
+            SELECT TIME, TEMPERATURE, HUMIDITY FROM \
+                (SELECT *, (@row_number:=@row_number+1) AS row FROM climate WHERE TIME BETWEEN ? AND ? ORDER BY TIME ASC) AS t \
+                WHERE row%@dec_fac=@num_rows%@dec_fac;",
+                [first_time, last_time, req.resultLimit, first_time, last_time]);
+            num_queries = 4;
         }
-        connection.query(query, function (err, rows, fields) {
+        connection.query(query, function (err, rows_all, fields) {
+            // Note that since multiple queries have been executed, rows and fields are arrays of the results
+            // We only care about the result of the final query
+            if (num_queries > 1) {
+                var rows = rows_all[rows_all.length - 1];
+            } else {
+                var rows = rows_all;
+            }
             if (err) {
                 reject(err);
             } else {
                 var result = rows.map((row: any) => {
                     return { time: row.TIME, temperature: row.TEMPERATURE, humidity: row.HUMIDITY };
-                });
-
-                // Decimate if required
-                var decimationFactor = 1;
-                if (result.length > 1) {
-                    var diff: number[] = result.map((row: Climate, idx: number, arr: Climate[]) => {
-                        if (idx == 0) {
-                            return 0;
-                        }
-                        else {
-                            return (row.time.getTime() - arr[idx - 1].time.getTime()) / 1000;
-                        }
-                    });
-                    diff = diff.slice(1);
-                    var mean = diff.reduce((total, num) => { return total + num; }) / diff.length;
-                    decimationFactor = Math.ceil(req.minTimeGap / mean);
-                }
-
-                // Ensure we always return the most recent reading
-                var final_mod = (result.length-1) % decimationFactor;
-                result = result.filter((row: Climate, idx: number) => {
-                    return ((idx % decimationFactor) == final_mod);
                 });
                 resolve(result);
             }

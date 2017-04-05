@@ -7,6 +7,7 @@ const request = require("request");
 const util = require("util");
 const climate_read = require("../datasource/climateread");
 const climate = require("../datasource/climateapi");
+const child_process = require("child_process");
 var db_connection = climate_read.get_db_connection();
 var port = 3000;
 var test_data = [
@@ -76,12 +77,12 @@ after(done => {
                     done(err);
                 }
                 else {
-                    populate_db((err) => {
+                    db_connection.end(err => {
                         if (err) {
                             done(err);
                         }
                         else {
-                            db_connection.end(err => {
+                            child_process.exec('node ../Scripts/CSVToDatabase.js', err => {
                                 if (err) {
                                     done(err);
                                 }
@@ -132,9 +133,9 @@ describe('climate_data_get', () => {
                 assert.deepEqual(result, test_data.slice(1, 5));
             });
         });
-        it('should return two results when asked for a time range with four points and a wide spacing', () => {
+        it('should return two results when asked for a time range with four points and result limit of 3', () => {
             var time_diff = (test_data[4].time.getTime() - test_data[1].time.getTime()) / 1000 + 1;
-            var req = new climate.ClimateRequest(test_data[4].time, moment.duration(time_diff, 'seconds'), time_diff / 4 * 2.1);
+            var req = new climate.ClimateRequest(test_data[4].time, moment.duration(time_diff, 'seconds'), 3);
             return climate.get_climate(req).then(result => {
                 assert.deepEqual(result, test_data.filter((d, i) => {
                     return (i == 2 || i == 4);
