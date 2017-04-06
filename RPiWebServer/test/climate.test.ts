@@ -9,8 +9,9 @@ import climate_read = require('../datasource/climateread');
 import climate = require('../datasource/climateapi');
 import mysql = require('mysql');
 import child_process = require('child_process');
+import db_access = require('../datasource/db_access')
 
-var db_connection = climate_read.get_db_connection();
+var db_connection = db_access.get_db_connection();
 
 var port = 3000;
 var test_data = [

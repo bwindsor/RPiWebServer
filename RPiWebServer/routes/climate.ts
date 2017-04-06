@@ -70,7 +70,7 @@ router.get('/api/all', (req: express.Request, res: express.Response) => {
 router.get('/api/since', (req: express.Request, res: express.Response) => {
     res.setHeader('Content-Type', 'application/json');
     var since = parseInt(req.query.time);
-    if (Number.isNaN(since)) {
+    if (isNaN(since)) {
         res.status(400).send(JSON.stringify({ error: "Input query not valid" }));
         return;
     }

@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const moment = require("moment");
 const fs = require("fs");
 const csv_parse = require("csv-parse");
+const db_access = require("./db_access");
+const Promise = require("promise");
 const path = require('path');
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'tempoutput.txt');
 const mysql = require("mysql");
@@ -33,18 +35,8 @@ class ClimateRequest {
     ;
 }
 exports.ClimateRequest = ClimateRequest;
-function get_db_connection() {
-    return mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASS,
-        database: process.env.CLIMATE_DB_NAME,
-        multipleStatements: true // This can mean SQL injection attacks are easier, but as long as everything is properly escaped it is fine.
-    });
-}
-exports.get_db_connection = get_db_connection;
 function read_database(req) {
-    var connection = get_db_connection();
+    var connection = db_access.get_db_connection();
     return new Promise((resolve, reject) => {
         var query;
         var num_queries;

@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require('dotenv').config({ path: '../process.env' });
-const climate_read = require("../datasource/climateread");
+const db_access = require("../datasource/db_access");
 const csv_parse = require("csv-parse");
 const fs = require("fs");
 const util = require("util");
-var connection = climate_read.get_db_connection();
+var connection = db_access.get_db_connection();
 var csv_contents = fs.readFileSync('../datasource/tempoutput.txt', 'utf8');
 csv_parse(csv_contents, (err, output) => {
     var rowStrings = output.map(row => {

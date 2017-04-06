@@ -6,10 +6,10 @@ const moment = require("moment");
 const app = require("../app");
 const request = require("request");
 const util = require("util");
-const climate_read = require("../datasource/climateread");
 const climate = require("../datasource/climateapi");
 const child_process = require("child_process");
-var db_connection = climate_read.get_db_connection();
+const db_access = require("../datasource/db_access");
+var db_connection = db_access.get_db_connection();
 var port = 3000;
 var test_data = [
     { time: new Date('2015-11-13 10:08:01'), temperature: 20, humidity: 70 },

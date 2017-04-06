@@ -1,11 +1,11 @@
 ﻿require('dotenv').config({ path: '../process.env' });
 import mysql = require('mysql');
-import climate_read = require('../datasource/climateread');
+import db_access = require('../datasource/db_access');
 import csv_parse = require('csv-parse');
 import fs = require('fs');
 import util = require('util');
 
-var connection = climate_read.get_db_connection();
+var connection = db_access.get_db_connection();
 
 var csv_contents = fs.readFileSync('../datasource/tempoutput.txt', 'utf8');
 

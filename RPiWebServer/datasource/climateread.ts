@@ -1,6 +1,8 @@
 ﻿import moment = require('moment');
 import fs = require('fs');
 import csv_parse = require('csv-parse');
+import db_access = require('./db_access');
+import Promise = require('promise');
 const path = require('path');
 const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'tempoutput.txt');
 import mysql = require('mysql');
@@ -47,19 +49,9 @@ export class ClimateRequest implements IClimateRequest {
     };
 }
 
-export function get_db_connection(): mysql.IConnection {
-    return mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASS,
-        database: process.env.CLIMATE_DB_NAME,
-        multipleStatements: true            // This can mean SQL injection attacks are easier, but as long as everything is properly escaped it is fine.
-    });
-}
+export function read_database(req: ClimateRequest): Promise.IThenable<Climate[]> {
 
-export function read_database(req: ClimateRequest): Promise<Climate[]> {
-
-    var connection = get_db_connection();
+    var connection = db_access.get_db_connection();
     return new Promise<Climate[]>((resolve, reject) => {
         var query: string;
         var num_queries: number;
@@ -90,7 +82,7 @@ export function read_database(req: ClimateRequest): Promise<Climate[]> {
             if (err) {
                 reject(err);
             } else {
-                var result = rows.map((row: any) => {
+                var result:Climate[] = rows.map((row: any) => {
                     return { time: row.TIME, temperature: row.TEMPERATURE, humidity: row.HUMIDITY };
                 });
                 resolve(result);
@@ -101,7 +93,7 @@ export function read_database(req: ClimateRequest): Promise<Climate[]> {
     
 }
 
-export function read_csv_file(req: ClimateRequest): Promise<string[][]> {
+export function read_csv_file(req: ClimateRequest): Promise.IThenable<string[][]> {
     var last_time = req.time.getTime()/1000;
     var first_time = moment(req.time).subtract(req.timeSpan).toDate().getTime()/1000;
 
