@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const moment = require("moment");
 const fs = require("fs");
 const csv_parse = require("csv-parse");

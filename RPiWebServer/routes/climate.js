@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /*
  * GET temperature page.
  */
@@ -86,6 +87,5 @@ router.get('/api/since', (req, res) => {
         send_error(res);
     });
 });
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = router;
 //# sourceMappingURL=climate.js.map

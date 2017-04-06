@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const climate_read = require("./climateread");
 class ClimateRequest extends climate_read.ClimateRequest {
 }

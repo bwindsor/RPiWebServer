@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 require('dotenv').config({ path: '../process.env' });
 const assert = require("assert");
 const moment = require("moment");
@@ -82,6 +83,7 @@ after(done => {
                             done(err);
                         }
                         else {
+                            // Fill up database again from the CSV file
                             child_process.exec('node ../Scripts/CSVToDatabase.js', err => {
                                 if (err) {
                                     done(err);

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 // Read environment variables
 require('dotenv').config({ path: './process.env' });
 const express = require("express");

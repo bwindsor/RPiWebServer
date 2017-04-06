@@ -1,0 +1,2 @@
+#!/bin/bash
+gcc -o RPiDataReader/bin/dataread -g RPiDataReader/database.c `mysql_config --cflags --libs`

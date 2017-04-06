@@ -1,1 +1,1 @@
-{"version":3,"file":"climateapi.js","sourceRoot":"","sources":["climateapi.ts"],"names":[],"mappings":";AACA,8CAA+C;AAI/C,oBAA4B,SAAQ,YAAY,CAAC,cAAc;CAAI;AAAnE,wCAAmE;AAAA,CAAC;AAEpE,qBAA4B,GAAmB;IAC3C,MAAM,CAAC,YAAY,CAAC,aAAa,CAAC,GAAG,CAAC,CAAC;AAC3C,CAAC;AAFD,kCAEC"}
+{"version":3,"file":"climateapi.js","sourceRoot":"","sources":["climateapi.ts"],"names":[],"mappings":";;AACA,8CAA+C;AAI/C,oBAA4B,SAAQ,YAAY,CAAC,cAAc;CAAI;AAAnE,wCAAmE;AAAA,CAAC;AAEpE,qBAA4B,GAAmB;IAC3C,MAAM,CAAC,YAAY,CAAC,aAAa,CAAC,GAAG,CAAC,CAAC;AAC3C,CAAC;AAFD,kCAEC"}

@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 require('dotenv').config({ path: '../process.env' });
 const climate_read = require("../datasource/climateread");
 const csv_parse = require("csv-parse");
