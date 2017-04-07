@@ -13,6 +13,10 @@ Environment variables required:
 ## MySQL database
 The database should be set up with `CLIMATE_DB_NAME` as its name. The climate table can be set up with
 `CREATE TABLE climate (TIME datetime NOT NULL PRIMARY KEY, TEMPERATURE decimal(3,1), HUMIDITY decimal(3,1));`
+There should be several users set up
+* A test user which has access to create/delete test databases. This can be set up with ``GRANT ALL PRIVILEGES ON `test\_%`.* TO 'benjw'@'localhost'``
+* A user which is the web server, which has read only access. This can be set up with ``GRANT SELECT ON CLIMATE_DB_NAME.`climate` TO 'climate'@'localhost'``
+* A user which is the logging programme, which has read and write access to the database. This can be set up with ``GRANT INSERT, SELECT ON `climate`.`climate` TO 'climatelogger'@'localhost';``
 
 ## API
 The endpoint of the api is /climate/api
@@ -56,5 +60,6 @@ minSpacing (optional) - the minimum average spacing between observations, in sec
 Returns Climate[]
 
 ## Tests
-To run tests you will need to allow your database user to create and delete databases starting with test_, which you can do with
-``GRANT ALL PRIVILEGES ON `test\_%` .  * TO 'username'@'localhost';``
+`npm test`
+Make sure the `process.env` file is set up correctly for access to a test database.
+To run tests you will need to allow your database user to create and delete databases starting with test_.
