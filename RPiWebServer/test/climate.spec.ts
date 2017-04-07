@@ -1,5 +1,4 @@
-﻿require('dotenv').config({ path: '../process.env' });
-import assert = require('assert');
+﻿import assert = require('assert');
 import moment = require('moment');
 import http = require('http');
 import app = require('../app');
@@ -11,7 +10,8 @@ import mysql = require('mysql');
 import child_process = require('child_process');
 import db_access = require('../datasource/db_access')
 
-var db_connection = db_access.get_db_connection();
+var mysql_connection = db_access.get_mysql_connection();
+var db_connection : mysql.IConnection;
 
 var port = 3000;
 var test_data = [
@@ -29,7 +29,7 @@ function get_request_url(path: string): string {
 var server: http.Server;
 
 function clear_db( done:any ) {
-    db_connection.query("DELETE FROM climate", err => {  // Clears test database
+    mysql_connection.query(util.format("DROP DATABASE IF EXISTS `%s`;", db_opts.dbname), err => {
         if (err) {
             done(err);
         } else {
@@ -39,13 +39,19 @@ function clear_db( done:any ) {
 }
 
 function populate_db(done: any) {
-    var query_string: string = "INSERT INTO climate VALUES ";
-    for (var i = 0; i < test_data.length; i++) {
-        query_string = query_string.concat(util.format("(FROM_UNIXTIME(%d), %d, %d), ", Math.round(test_data[i].time.getTime() / 1000), test_data[i].temperature, test_data[i].humidity));
-    };
-    query_string = query_string.slice(0, -2);
+    db_access.create_climate_database(mysql_connection, (err:any) => {
+        if (err){
+            done(err);
+        } else {
+            var query_string: string = "INSERT INTO climate VALUES ";
+            for (var i = 0; i < test_data.length; i++) {
+                query_string = query_string.concat(util.format("(FROM_UNIXTIME(%d), %d, %d), ", Math.round(test_data[i].time.getTime() / 1000), test_data[i].temperature, test_data[i].humidity));
+            };
+            query_string = query_string.slice(0, -2);
 
-    db_connection.query(query_string, done);
+            db_connection.query(query_string, done);
+        }
+    });
 };
 
 before(done => {
@@ -53,6 +59,7 @@ before(done => {
         if (err) {
             done(err);
         } else {
+            db_connection = db_access.get_db_connection();
             populate_db((err:any) => {
                 if (err) {
                     done(err);
@@ -76,18 +83,17 @@ after(done => {
         if (err) {
             done(err);
         } else {
-            clear_db((err: any) => {
+            db_connection.end( err => {
                 if (err) {
                     done(err);
                 } else {
-                    db_connection.end(err => {
+                    clear_db( (err:any) => {
                         if (err) {
                             done(err);
                         } else {
-                            // Fill up database again from the CSV file
-                            child_process.exec('node ../Scripts/CSVToDatabase.js', err => {
+                            mysql_connection.end( err => {
                                 if (err) {
-                                    done(err)
+                                    done(err);
                                 } else {
                                     done();
                                 }

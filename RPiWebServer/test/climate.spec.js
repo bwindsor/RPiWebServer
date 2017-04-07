@@ -1,15 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-require('dotenv').config({ path: '../process.env' });
 const assert = require("assert");
 const moment = require("moment");
 const app = require("../app");
 const request = require("request");
 const util = require("util");
 const climate = require("../datasource/climateapi");
-const child_process = require("child_process");
 const db_access = require("../datasource/db_access");
-var db_connection = db_access.get_db_connection();
+var db_opts = {
+    host: 'localhost',
+    user: 'benjw',
+    pass: 'st94uy',
+    dbname: 'test_climate'
+};
+var mysql_connection = db_access.get_mysql_connection();
+var db_connection;
 var port = 3000;
 var test_data = [
     { time: new Date('2015-11-13 10:08:01'), temperature: 20, humidity: 70 },
@@ -24,7 +29,7 @@ function get_request_url(path) {
 }
 var server;
 function clear_db(done) {
-    db_connection.query("DELETE FROM climate", err => {
+    mysql_connection.query(util.format("DROP DATABASE IF EXISTS `%s`;", db_opts.dbname), err => {
         if (err) {
             done(err);
         }
@@ -34,13 +39,20 @@ function clear_db(done) {
     });
 }
 function populate_db(done) {
-    var query_string = "INSERT INTO climate VALUES ";
-    for (var i = 0; i < test_data.length; i++) {
-        query_string = query_string.concat(util.format("(FROM_UNIXTIME(%d), %d, %d), ", Math.round(test_data[i].time.getTime() / 1000), test_data[i].temperature, test_data[i].humidity));
-    }
-    ;
-    query_string = query_string.slice(0, -2);
-    db_connection.query(query_string, done);
+    db_access.create_climate_database(mysql_connection, (err) => {
+        if (err) {
+            done(err);
+        }
+        else {
+            var query_string = "INSERT INTO climate VALUES ";
+            for (var i = 0; i < test_data.length; i++) {
+                query_string = query_string.concat(util.format("(FROM_UNIXTIME(%d), %d, %d), ", Math.round(test_data[i].time.getTime() / 1000), test_data[i].temperature, test_data[i].humidity));
+            }
+            ;
+            query_string = query_string.slice(0, -2);
+            db_connection.query(query_string, done);
+        }
+    });
 }
 ;
 before(done => {
@@ -49,6 +61,7 @@ before(done => {
             done(err);
         }
         else {
+            db_connection = db_access.get_db_connection();
             populate_db((err) => {
                 if (err) {
                     done(err);
@@ -73,18 +86,17 @@ after(done => {
             done(err);
         }
         else {
-            clear_db((err) => {
+            db_connection.end(err => {
                 if (err) {
                     done(err);
                 }
                 else {
-                    db_connection.end(err => {
+                    clear_db((err) => {
                         if (err) {
                             done(err);
                         }
                         else {
-                            // Fill up database again from the CSV file
-                            child_process.exec('node ../Scripts/CSVToDatabase.js', err => {
+                            mysql_connection.end(err => {
                                 if (err) {
                                     done(err);
                                 }
@@ -284,4 +296,4 @@ describe('climate_api', () => {
         });
     });
 });
-//# sourceMappingURL=climate.test.js.map
+//# sourceMappingURL=climate.spec.js.map

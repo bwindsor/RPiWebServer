@@ -1,2 +1,3 @@
 #!/bin/bash
-gcc -o RPiDataReader/bin/dataread -g RPiDataReader/database.c `mysql_config --cflags --libs`
+gcc -v -o bin/dataread -g database.c `mysql_config --cflags --libs`
+echo "gcc exited."

@@ -1,0 +1,2 @@
+#!/bin/bash
+CLIMATE_DB_NAME=test_climate node node_modules/mocha/bin/_mocha --opts mocha.opts ./**/*.spec.js

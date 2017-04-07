@@ -1,0 +1,5 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    // Mocha: Glob to search for test files
+  "mocha.files.glob": "RPiWebServer/test/*.js"
+}

@@ -54,3 +54,7 @@ startTime (required) - earliest UNIX time to return
 endTime (required) - latest UNIX time to return
 minSpacing (optional) - the minimum average spacing between observations, in seconds
 Returns Climate[]
+
+## Tests
+To run tests you will need to allow your database user to create and delete databases starting with test_, which you can do with
+``GRANT ALL PRIVILEGES ON `test\_%` .  * TO 'username'@'localhost';``
