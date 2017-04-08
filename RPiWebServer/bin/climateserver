@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env node
+#!/usr/bin/node
 // Read environment variables
 require('dotenv').config({path: '../process.env'});
 var debug = require('debug')('RPiWebServer');
