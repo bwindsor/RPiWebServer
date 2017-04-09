@@ -5,6 +5,7 @@ import path = require('path');
 import routes from './routes/index';
 import users from './routes/user';
 import climate from './routes/climate';
+import ip = require('./helpers/ip');
 
 // Keep alive message, log every 5 minutes that app is running
 setInterval( () => { var d = new Date(); console.log(d.toISOString() + " App is running") }, 300000);
@@ -15,6 +16,14 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+// Log request and source IP
+app.use(function(req, res, next) {
+    var req_ip = ip.get_request_ip(req);
+    var timeNow = new Date();
+    console.log('%s %s %s %s %s', timeNow.toISOString(), req_ip, req.method, req.url, req.path);
+    next();
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
@@ -22,7 +31,7 @@ app.use('/users', users);
 app.use('/climate', climate);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use( (req, res, next) => {
     var err: any = new Error('Not Found');
     err['status'] = 404;
     next(err);

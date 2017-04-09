@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const climate = require("../datasource/climateapi");
 const moment = require("moment");
-const ip = require("../helpers/ip");
 const router = express.Router();
 function send_error(res, reason) {
     res.statusCode = 500;
@@ -67,9 +66,7 @@ router.get('/api/all', (req, res) => {
     });
 });
 router.get('/api/since', (req, res) => {
-    var req_ip = ip.get_request_ip(req);
     var timeNow = new Date();
-    console.log(timeNow.toISOString() + " Request to since api from " + req_ip);
     res.setHeader('Content-Type', 'application/json');
     var since = parseInt(req.query.time);
     if (isNaN(since)) {

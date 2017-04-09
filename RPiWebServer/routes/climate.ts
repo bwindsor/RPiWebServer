@@ -4,7 +4,6 @@
 import express = require('express');
 import climate = require('../datasource/climateapi');
 import moment = require('moment');
-import ip = require('../helpers/ip');
 const router = express.Router();
 
 function send_error(res: express.Response, reason?: any) {
@@ -69,9 +68,7 @@ router.get('/api/all', (req: express.Request, res: express.Response) => {
 });
 
 router.get('/api/since', (req: express.Request, res: express.Response) => {
-    var req_ip = ip.get_request_ip(req);
     var timeNow = new Date();
-    console.log(timeNow.toISOString() + " Request to since api from " + req_ip);
     
     res.setHeader('Content-Type', 'application/json');
     var since = parseInt(req.query.time);
