@@ -29,7 +29,7 @@ function get_request_url(path: string): string {
 var server: http.Server;
 
 function clear_db( done:any ) {
-    mysql_connection.query(util.format("DROP DATABASE IF EXISTS `%s`;", db_opts.dbname), err => {
+    mysql_connection.query(util.format("DROP DATABASE IF EXISTS `%s`;", process.env.CLIMATE_DB_NAME), err => {
         if (err) {
             done(err);
         } else {

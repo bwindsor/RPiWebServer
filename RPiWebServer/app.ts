@@ -6,6 +6,9 @@ import routes from './routes/index';
 import users from './routes/user';
 import climate from './routes/climate';
 
+// Keep alive message, log every 5 minutes that app is running
+setInterval( () => { var d = new Date(); console.log(d.toISOString() + " App is running") }, 300000);
+
 var app = express();
 
 // view engine setup
