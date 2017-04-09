@@ -14,7 +14,6 @@ exports.app = app;
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
-app.use(express.static(path.join(__dirname, 'public')));
 // Log request and source IP
 app.use(function (req, res, next) {
     var req_ip = ip.get_request_ip(req);
@@ -22,6 +21,7 @@ app.use(function (req, res, next) {
     console.log('%s %s %s %s %s', timeNow.toISOString(), req_ip, req.method, req.url, req.path);
     next();
 });
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index_1.default);
 app.use('/users', user_1.default);
 app.use('/climate', climate_1.default);
