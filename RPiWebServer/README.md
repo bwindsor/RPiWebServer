@@ -19,45 +19,46 @@ There should be several users set up
 * A user which is the logging programme, which has read and write access to the database. This can be set up with ``GRANT INSERT, SELECT ON `climate`.`climate` TO 'climatelogger'@'localhost';``
 
 ## API
-The endpoint of the api is /climate/api
+The endpoint of the api is `/climate/api`
 
-`GET /humidity`
-Gets the most recently read humidity
-Returns object
-humidity - the last read humidity, in % relative.
-Example: `{"humidity": 70}`
+Humidity | Descriptions
+--- | ---
+Method | GET
+Path | /humidity
+Description | Gets the most recently read humidity, in % relative
+Returns | Object
+Example request | `/humidity`
+Example response | `{"humidity": 70}`
 
-`GET /temperature`
-Gets the most recently read temperature
-Returns object
-temperature - the last read temperature, in Celsius
-Example: `{"temperature": 20}`
+Temperature | Descriptions
+--- | ---
+Method | GET
+Path | /temperature
+Description | Gets the most recently read temperature, in Celsius
+Returns | Object
+Example request | `/temperature`
+Example response | `{"temperature": 20}`
 
-Define type Climate to be an object
-time - ISO time string
-temperature - temperature in degress Celsius
-humidity - relative humidity in %
+All | Descriptions
+--- | ---
+Method | GET
+Path | /all
+Description | Gets the most recently read time, temperature and humidity
+Returns | Object
+Example request | `/all`
+Example response | `{"time":"2015-11-13T10:08:51.000Z","temperature":20,"humidity":70}`
 
-`GET /all`
-Gets the most recently read row of data.
-Returns Climate
-Example `{"time":"2015-11-13T10:08:51.000Z","temperature":20,"humidity":70}`
+Since | Descriptions
+--- | ---
+Method | GET
+Path | /since?time=:time
+Description | Gets all times, temperatures and humidities since the requested time
+Parameters | *Time*: Integer or decimal, the UNIX time which is seconds since 1/1/1970.
+Returns | Object[]
+Example request | `/since?time=1491767120`
+Example response | `[{"time":"2017-04-09T19:45:01.000Z","temperature":20,"humidity":70}, {"time":"2017-04-09T19:45:31.000Z","temperature":19,"humidity":68}]`
 
-`GET /since?time=:time`
-Gets all data since the unix time (seconds since January 1st, 1970).
-The unix time can be obtained from a JavaScript date by `myDate.getTime()/1000`
-Params
-time (required) - The UNIX time to get data since
-Returns Climate[]
-Example `[{"time":"2015-11-13T10:08:21.000Z","temperature":19,"humidity":70}, {"time":"2015-11-13T10:08:51.000Z","temperature":20,"humidity":70}]`
-
-`GET /between?startTime=:startTime&endTime=:endTime&minSpacing=:minSpacing`
-Not yet implemented.
-Params
-startTime (required) - earliest UNIX time to return
-endTime (required) - latest UNIX time to return
-minSpacing (optional) - the minimum average spacing between observations, in seconds
-Returns Climate[]
+The spacing between the responses depends on how many you have requested. There is a maximum number of results which is returned, and they are decimated in time to keep the number below this limit.
 
 ## Tests
 `npm test`
