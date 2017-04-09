@@ -1,2 +1,3 @@
 #!/bin/bash
+mkdir -p bin
 gcc -o bin/climateread dht11.c database.c `mysql_config --cflags --libs` -lwiringPi -lwiringPiDev
