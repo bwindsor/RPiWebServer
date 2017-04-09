@@ -1,3 +1,2 @@
 #!/bin/bash
-gcc -o bin/dataread -g main.c database.c `mysql_config --cflags --libs`
-echo "gcc exited."
+gcc -o bin/climateread dht11.c database.c `mysql_config --cflags --libs` -lwiringPi -lwiringPiDev
