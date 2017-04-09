@@ -13,3 +13,6 @@ This is C code which reads from the DHT11 temperature sensor and writes the resu
 #define DB_PASS "sqlpassword"
 #define CLIMATE_DB_NAME "test_climate"
 ```
+
+## Build
+Build with `./build`
