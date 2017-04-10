@@ -7,19 +7,21 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript" src="js/jquery-3.2.0.min.js"></script>
     <script>
+        var chart;
+
       // Load the Visualization API and the corechart package.
       google.charts.load('current', {'packages':['corechart']});
 
       // Set a callback to run when the Google Visualization API is loaded.
-      google.charts.setOnLoadCallback(drawChart);
+      google.charts.setOnLoadCallback(() => { drawChartAgo(7); });
 
       // Callback that creates and populates a data table,
       // instantiates the pie chart, passes in the data and
       // draws it.
-        function drawChart() {
-            var lastweek = new Date().getTime()/1000 - (86400 * 7);
+        function drawChartAgo(numDays) {
+            var sinceTime = new Date().getTime()/1000 - (numDays * 86400);
 
-            $.get('/climate/api/since?time=' + lastweek.toString()).then(jsonData => {
+            $.get('/climate/api/since?time=' + sinceTime.toString()).then(jsonData => {
               // Create the data table.
               var data = new google.visualization.DataTable();
               var rows = jsonData.map(x => {
@@ -38,7 +40,7 @@
               };
 
               // Instantiate and draw our chart, passing in some options.
-              var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+              chart = new google.visualization.LineChart(document.getElementById('chart_div'));
               chart.draw(data, options);
           })
 
@@ -48,7 +50,38 @@
 </head>
 
 <body>
-    <!--Div that will hold the pie chart-->
+    <!--Div that will hold the time period selector-->
+    <select style="width: 280px" id="TimePeriodSelector" name="Time period">
+        <option>Week</option>
+        <option>Day</option>
+        <option>3 Days</option>
+        <option>Month</option>
+        <option>Year</option>
+    </select>
+    <!--Div that will hold the graph-->
     <div id="chart_div"></div>
+    <script>
+        var element = document.getElementById("TimePeriodSelector");
+        element.onchange = (e) => {
+            switch (e.target.selectedIndex)
+            {
+                case 0:
+                    drawChartAgo(7);
+                    break;
+                case 1:
+                    drawChartAgo(1);
+                    break;
+                case 2:
+                    drawChartAgo(3);
+                    break;
+                case 3:
+                    drawChartAgo(30);
+                    break;
+                case 4: 
+                    drawChartAgo(365);
+                    break;
+            }
+        };
+    </script>
 </body>
 </html>
