@@ -34,6 +34,7 @@ export function create_climate_database(connection: mysql.IConnection, done:any)
                       USE %s;\
                       CREATE TABLE climate (TIME datetime NOT NULL PRIMARY KEY, TEMPERATURE decimal(3,1), HUMIDITY decimal(3,1));", 
                       process.env.CLIMATE_DB_NAME, process.env.CLIMATE_DB_NAME),  err => {
+                          connection.end();
                           if (err) {
                               done(err);
                           } else {

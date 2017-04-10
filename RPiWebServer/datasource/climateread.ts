@@ -72,20 +72,27 @@ export function read_database(req: ClimateRequest): Promise.IThenable<Climate[]>
             num_queries = 4;
         }
         connection.query(query, function (err, rows_all, fields) {
-            // Note that since multiple queries have been executed, rows and fields are arrays of the results
-            // We only care about the result of the final query
-            if (num_queries > 1) {
-                var rows = rows_all[rows_all.length - 1];
-            } else {
-                var rows = rows_all;
-            }
             if (err) {
+                connection.end();
                 reject(err);
             } else {
-                var result:Climate[] = rows.map((row: any) => {
-                    return { time: row.TIME, temperature: row.TEMPERATURE, humidity: row.HUMIDITY };
+                connection.end( err => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        // Note that since multiple queries have been executed, rows and fields are arrays of the results
+                        // We only care about the result of the final query
+                        if (num_queries > 1) {
+                            var rows = rows_all[rows_all.length - 1];
+                        } else {
+                            var rows = rows_all;
+                        }
+                        var result:Climate[] = rows.map((row: any) => {
+                            return { time: row.TIME, temperature: row.TEMPERATURE, humidity: row.HUMIDITY };
+                        });
+                        resolve(result);                           
+                    }
                 });
-                resolve(result);
             }
         });
     });
