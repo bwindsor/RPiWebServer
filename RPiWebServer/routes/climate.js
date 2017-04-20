@@ -108,7 +108,8 @@ router.get('/api/since', (req, res) => {
                     return {
                         time: d.time.toISOString(),
                         temperature: d.temperature,
-                        humidity: d.humidity
+                        humidity: d.humidity,
+                        light: d.light
                     };
                 });
                 res.send(JSON.stringify(jsonResponse));

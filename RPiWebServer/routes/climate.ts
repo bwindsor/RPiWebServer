@@ -104,7 +104,7 @@ router.get('/api/since', (req: express.Request, res: express.Response) => {
         return;
     }
     var timeDiff = timeNow.getTime() / 1000 - since;
-    climate.get_climate(new climate.ClimateRequest(new Date(), moment.duration(timeDiff, 'seconds'))).then(value => {
+     climate.get_climate(new climate.ClimateRequest(new Date(), moment.duration(timeDiff, 'seconds'))).then(value => {
         switch (dataType) {
             case "json":
                 res.setHeader('Content-Type', 'application/json');
@@ -112,7 +112,8 @@ router.get('/api/since', (req: express.Request, res: express.Response) => {
                     return {
                         time: d.time.toISOString(),
                         temperature: d.temperature,
-                        humidity: d.humidity
+                        humidity: d.humidity,
+                        light: d.light
                     };
                 });
                 res.send(JSON.stringify(jsonResponse));
