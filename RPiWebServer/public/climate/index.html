@@ -25,11 +25,12 @@
               // Create the data table.
               var data = new google.visualization.DataTable();
               var rows = jsonData.map(x => {
-                  return [new Date(x.time), x.temperature, x.humidity];
+                  return [new Date(x.time), x.temperature, x.humidity, x.light/10];
               });
               data.addColumn('datetime', 'Time');
               data.addColumn('number', 'Temperature');
               data.addColumn('number', 'Humidity');
+              data.addColumn('number', 'Light');
               data.addRows(rows);
 
               // Set chart options
