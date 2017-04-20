@@ -52,13 +52,24 @@ router.get('/api/humidity', (req, res) => {
         send_error(res);
     });
 });
+router.get('/api/light', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    climate.get_climate(new climate.ClimateRequest()).then(value => {
+        res.send(JSON.stringify({
+            light: value[0].light
+        }));
+    }).catch(reason => {
+        send_error(res);
+    });
+});
 router.get('/api/all', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     climate.get_climate(new climate.ClimateRequest()).then(value => {
         var jsonResponse = {
             time: value[0].time.toISOString(),
             temperature: value[0].temperature,
-            humidity: value[0].humidity
+            humidity: value[0].humidity,
+            light: value[0].light
         };
         res.send(JSON.stringify(jsonResponse));
     }).catch(reason => {

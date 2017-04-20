@@ -50,7 +50,7 @@ function read_database(req) {
             query = mysql.format("SET @num_rows = (SELECT COUNT(*) FROM climate WHERE TIME BETWEEN ? AND ?); \
             SET @row_number = 0; \
             SET @dec_fac = CEILING(@num_rows / ?); \
-            SELECT TIME, TEMPERATURE, HUMIDITY FROM \
+            SELECT TIME, TEMPERATURE, HUMIDITY, LIGHT FROM \
                 (SELECT *, (@row_number:=@row_number+1) AS row FROM climate WHERE TIME BETWEEN ? AND ? ORDER BY TIME ASC) AS t \
                 WHERE row%@dec_fac=@num_rows%@dec_fac;", [first_time, last_time, req.resultLimit, first_time, last_time]);
             num_queries = 4;
@@ -75,7 +75,7 @@ function read_database(req) {
                             var rows = rows_all;
                         }
                         var result = rows.map((row) => {
-                            return { time: row.TIME, temperature: row.TEMPERATURE, humidity: row.HUMIDITY };
+                            return { time: row.TIME, temperature: row.TEMPERATURE, humidity: row.HUMIDITY, light: row.LIGHT };
                         });
                         resolve(result);
                     }

@@ -7,8 +7,8 @@ import users from './routes/user';
 import climate from './routes/climate';
 import ip = require('./helpers/ip');
 
-// Keep alive message, log every 5 minutes that app is running
-setInterval( () => { var d = new Date(); console.log(d.toISOString() + " App is running") }, 300000);
+// Keep alive message, log every hour that app is running
+setInterval( () => { var d = new Date(); console.log(d.toISOString() + " App is running") }, 3600000);
 
 var app = express();
 
