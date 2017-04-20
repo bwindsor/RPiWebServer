@@ -7,8 +7,8 @@ const index_1 = require("./routes/index");
 const user_1 = require("./routes/user");
 const climate_1 = require("./routes/climate");
 const ip = require("./helpers/ip");
-// Keep alive message, log every 5 minutes that app is running
-setInterval(() => { var d = new Date(); console.log(d.toISOString() + " App is running"); }, 300000);
+// Keep alive message, log every hour that app is running
+setInterval(() => { var d = new Date(); console.log(d.toISOString() + " App is running"); }, 3600000);
 var app = express();
 exports.app = app;
 // view engine setup

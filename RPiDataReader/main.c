@@ -5,7 +5,7 @@
 #include "dht11.h"
 #include "lightread.h"
 
-#define READ_INTERVAL   60 /* How often to read the sensor */
+#define READ_INTERVAL  60 /* How often to read the sensors */
 
 int main(int argc, char **argv)
 {
