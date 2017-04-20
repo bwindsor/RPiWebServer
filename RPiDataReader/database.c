@@ -30,10 +30,10 @@ void close_db_connection()
 	mysql_close(con);
 }
 
-int write_climate_to_database(int time, float temperature, float humidity)
+int write_climate_to_database(int time, float temperature, float humidity, int light)
 {
 	char q[100];
-	sprintf(q, "INSERT INTO climate VALUES (FROM_UNIXTIME(%d), %.1f, %.1f);", time, temperature, humidity);
+	sprintf(q, "INSERT INTO climate VALUES (FROM_UNIXTIME(%d), %.1f, %.1f, %d);", time, temperature, humidity, light);
 	if (mysql_query(con, q)) 
 	{
 		fprintf(stderr, "%s\n", mysql_error(con));
