@@ -7,7 +7,7 @@ const request = require("request");
 const util = require("util");
 const climate = require("../datasource/climateapi");
 const db_access = require("../datasource/db_access");
-var mysql_connection = db_access.get_mysql_connection();
+var mysql_connection;
 var db_connection;
 var port = 3000;
 var test_data = [
@@ -23,6 +23,7 @@ function get_request_url(path) {
 }
 var server;
 function clear_db(done) {
+    mysql_connection = db_access.get_mysql_connection();
     mysql_connection.query(util.format("DROP DATABASE IF EXISTS `%s`;", process.env.CLIMATE_DB_NAME), err => {
         if (err) {
             done(err);
@@ -50,6 +51,7 @@ function populate_db(done) {
 }
 ;
 before(done => {
+    mysql_connection = db_access.get_mysql_connection();
     clear_db((err) => {
         if (err) {
             done(err);

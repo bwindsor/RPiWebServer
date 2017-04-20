@@ -10,7 +10,7 @@ import mysql = require('mysql');
 import child_process = require('child_process');
 import db_access = require('../datasource/db_access')
 
-var mysql_connection = db_access.get_mysql_connection();
+var mysql_connection: mysql.IConnection;
 var db_connection : mysql.IConnection;
 
 var port = 3000;
@@ -29,6 +29,7 @@ function get_request_url(path: string): string {
 var server: http.Server;
 
 function clear_db( done:any ) {
+    mysql_connection = db_access.get_mysql_connection();
     mysql_connection.query(util.format("DROP DATABASE IF EXISTS `%s`;", process.env.CLIMATE_DB_NAME), err => {
         if (err) {
             done(err);
@@ -55,6 +56,8 @@ function populate_db(done: any) {
 };
 
 before(done => {
+    mysql_connection = db_access.get_mysql_connection();
+
     clear_db((err:any) => {
         if (err) {
             done(err);

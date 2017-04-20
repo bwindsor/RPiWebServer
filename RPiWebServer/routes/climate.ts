@@ -70,7 +70,22 @@ router.get('/api/all', (req: express.Request, res: express.Response) => {
 router.get('/api/since', (req: express.Request, res: express.Response) => {
     var timeNow = new Date();
     
-    res.setHeader('Content-Type', 'application/json');
+    var dataType: string;
+    if (req.query.dataType) {
+        switch (req.query.dataType) {
+            case "json":
+                dataType = "json";
+                break;
+            case "binary":
+                dataType = "binary";
+                break;
+            default:
+                res.status(400).send(JSON.stringify({ error: "Requested data type invalid"}));
+        }
+    } else {
+        dataType = "json";
+    }
+
     var since = parseInt(req.query.time);
     if (isNaN(since)) {
         res.status(400).send(JSON.stringify({ error: "Input query not valid" }));
@@ -78,14 +93,30 @@ router.get('/api/since', (req: express.Request, res: express.Response) => {
     }
     var timeDiff = timeNow.getTime() / 1000 - since;
     climate.get_climate(new climate.ClimateRequest(new Date(), moment.duration(timeDiff, 'seconds'))).then(value => {
-        var jsonResponse = value.map(d => {
-            return {
-                time: d.time.toISOString(),
-                temperature: d.temperature,
-                humidity: d.humidity
-            };
-        });
-        res.send(JSON.stringify(jsonResponse));
+        switch (dataType) {
+            case "json":
+                res.setHeader('Content-Type', 'application/json');
+                var jsonResponse = value.map(d => {
+                    return {
+                        time: d.time.toISOString(),
+                        temperature: d.temperature,
+                        humidity: d.humidity
+                    };
+                });
+                res.send(JSON.stringify(jsonResponse));
+                break;
+            case "binary":
+                res.setHeader('Content-Type', 'application/octet-stream');
+                /*
+                var data = value.reduce((a, b) => {
+                    // Time is uint32, temperature is int16, humidity is int16
+                    // TODO - put these into a data stream
+                    
+                });
+                */
+                res.send('Not implemented');
+                break;
+        }
     }).catch(reason => {
         send_error(res);
     });

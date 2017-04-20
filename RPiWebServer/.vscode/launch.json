@@ -4,8 +4,9 @@
         {
             "type": "node",
             "request": "launch",
+            "protocol": "legacy",
             "name": "Launch Web Server",
-            "program": "${workspaceRoot}/bin/www"
+            "program": "${workspaceRoot}/bin/climateserver.js",
         },
         {
             "type": "node",
