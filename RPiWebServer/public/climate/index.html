@@ -54,6 +54,7 @@
     <!--Div that will hold the time period selector-->
     <select style="width: 280px" id="TimePeriodSelector" name="Time period">
         <option>Week</option>
+        <option>Hour</option>
         <option>Day</option>
         <option>3 Days</option>
         <option>Month</option>
@@ -70,15 +71,18 @@
                     drawChartAgo(7);
                     break;
                 case 1:
-                    drawChartAgo(1);
+                    drawChartAgo(1/24);
                     break;
                 case 2:
-                    drawChartAgo(3);
+                    drawChartAgo(1);
                     break;
                 case 3:
+                    drawChartAgo(3);
+                    break;
+                case 4:
                     drawChartAgo(30);
                     break;
-                case 4: 
+                case 5: 
                     drawChartAgo(365);
                     break;
             }
