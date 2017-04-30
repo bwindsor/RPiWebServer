@@ -9,7 +9,7 @@
 
 int main(int argc, char **argv)
 {
-	printf( "Raspberry Pi wiringPi DHT11 Temperature test program\n" );
+/*	printf( "Raspberry Pi wiringPi DHT11 Temperature test program\n" ); */
  	int count;
 	int light_level;
 	dht11_data_t dht11_data;
