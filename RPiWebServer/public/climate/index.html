@@ -37,7 +37,8 @@
               var options = {
                   'title': 'Climate',
                   'width': 1000,
-                  'height': 600
+                  'height': 600,
+                  'explorer': {keepInBounds: true}
               };
 
               // Instantiate and draw our chart, passing in some options.
@@ -61,6 +62,9 @@
         <option>Year</option>
     </select>
     <!--Div that will hold the graph-->
+    <div style="font-family:Arial">
+        Draw to pan, scroll to zoom, right click to reset
+    </div>
     <div id="chart_div"></div>
     <script>
         var element = document.getElementById("TimePeriodSelector");
